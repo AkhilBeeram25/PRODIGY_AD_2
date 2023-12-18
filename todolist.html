@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        /* ... (same as before) */
+        li span {
+            cursor: pointer;
+            margin-left: 10px;
+            color: red;
+            margin-right: 5px; /* Added margin for better spacing */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>To-Do List</h2>
+
+    <input type="text" id="taskInput" placeholder="New Task">
+    <button id="addTaskBtn" onclick="addTask()">Add Task</button>
+    <button id="clearTasksBtn" onclick="clearTasks()">Clear All</button>
+
+    <ul id="taskList"></ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Load tasks from local storage
+            loadTasks();
+        });
+
+        function addTask() {
+            var taskInput = document.getElementById('taskInput');
+            var taskList = document.getElementById('taskList');
+
+            if (taskInput.value.trim() !== '') {
+                var li = document.createElement('li');
+                li.innerHTML = taskInput.value +    
+                    '<span onclick="editTask(this)">   Edit</span>' +
+                    '<span onclick="deleteTask(this)">   Delete</span>';
+                taskList.appendChild(li);
+
+                // Save tasks to local storage
+                saveTasks();
+
+                // Clear input
+                taskInput.value = '';
+            }
+        }
+
+        function editTask(element) {
+            var li = element.parentElement;
+            var taskText = li.firstChild.nodeValue.trim();
+            var newText = prompt('Edit Task:', taskText);
+
+            if (newText !== null) {
+                li.firstChild.nodeValue = newText;
+                saveTasks();
+            }
+        }
+
+        function deleteTask(element) {
+            var taskList = document.getElementById('taskList');
+            var li = element.parentElement;
+            taskList.removeChild(li);
+
+            // Save tasks to local storage
+            saveTasks();
+        }
+
+        function clearTasks() {
+            var taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            // Clear tasks from local storage
+            localStorage.removeItem('tasks');
+        }
+
+        function saveTasks() {
+            var taskList = document.getElementById('taskList');
+            var tasks = [];
+
+            // Save tasks to local storage
+            taskList.childNodes.forEach(function (task) {
+                tasks.push(task.firstChild.nodeValue.trim());
+            });
+
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            var taskList = document.getElementById('taskList');
+            var tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            tasks.forEach(function (task) {
+                var li = document.createElement('li');
+                li.innerHTML = task +
+                    '<span onclick="editTask(this)">Edit</span>' +
+                    '<span onclick="deleteTask(this)">Delete</span>';
+                taskList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
